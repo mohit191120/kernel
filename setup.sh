@@ -1,8 +1,13 @@
 #!/bin/bash
 cd ~
 git clone https://github.com/TheSanty/kernel_xiaomi_msm8953.git
-git clone https://github.com/mvaisakh/gcc-arm64.git gcc
-git clone https://github.com/mvaisakh/gcc-arm.git gcc32
+git clone https://github.com/arter97/arm64-gcc.git -b master --depth=3 gcc
+git clone https://github.com/arter97/arm32-gcc.git -b master --depth=3 gcc32
+cd gcc
+git checkout cd9eb72bace3b4d682d5251a9eb4829bdd0ec2ca
+cd ../gcc32
+git checkout b788b457799d68553f51a00a5dd4a1d0ea6b0558
+cd ..
 cd kernel_xiaomi_msm8953/
 make -j$(nproc) O=out ARCH=arm64 sakura_defconfig	    
 make -j$(nproc) ARCH=arm64 O=out \
