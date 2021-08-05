@@ -1,18 +1,23 @@
 #!/bin/bash
 cd ~
 git clone https://github.com/TheSanty/kernel_xiaomi_msm8953.git
-git clone https://github.com/arter97/arm64-gcc.git -b master --depth=3 gcc
-git clone https://github.com/arter97/arm32-gcc.git -b master --depth=3 gcc32
-cd gcc
-git checkout cd9eb72bace3b4d682d5251a9eb4829bdd0ec2ca
-cd ../gcc32
-git checkout b788b457799d68553f51a00a5dd4a1d0ea6b0558
+git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
+git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9
+mkdir clang
+cd clang 
+wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-11.0.0_r40/clang-r383902b1.tar.gz
+tar xvf clang-r383902b1.tar.gz
 cd ..
 cd kernel_xiaomi_msm8953/
-make -j$(nproc) O=out ARCH=arm64 sakura_defconfig	    
-make -j$(nproc) ARCH=arm64 O=out \
-	CROSS_COMPILE=$HOME/gcc/bin/aarch64-elf- \
-	CROSS_COMPILE_ARM32=$HOME/gcc32/bin/arm-eabi-
+export ARCH=arm64 && export SUBARCH=arm64
+make O=out ARCH=arm64 sakura_defconfig
+PATH="$HOME/clang/bin:$HOME/aarch64-linux-android-4.9/bin:$HOME/arm-linux-androideabi-4.9/bin:${PATH}" \
+make -j$(nproc --all) O=out \
+                      ARCH=arm64 \
+                      CC=clang \
+                      CLANG_TRIPLE=aarch64-linux-gnu- \
+                      CROSS_COMPILE=aarch64-linux-android- \
+                      CROSS_COMPILE_ARM32=arm-linux-androideabi-
 cd ../
 git clone https://github.com/TheSanty/AnyKernel3.git
 cp $(pwd)/kernel_xiaomi_msm8953/out/arch/arm64/boot/Image.gz-dtb $(pwd)/AnyKernel3
@@ -29,10 +34,15 @@ rm -rf kernel_xiaomi_msm8953
 rm -rf AnyKernel3
 git clone https://github.com/TheSanty/kernel_xiaomi_msm8953.git
 cd kernel_xiaomi_msm8953/
-make -j$(nproc) O=out ARCH=arm64 daisy_defconfig	    
-make -j$(nproc) ARCH=arm64 O=out \
-	CROSS_COMPILE=$HOME/gcc/bin/aarch64-elf- \
-	CROSS_COMPILE_ARM32=$HOME/gcc32/bin/arm-eabi-
+export ARCH=arm64 && export SUBARCH=arm64
+make O=out ARCH=arm64 daisy_defconfig
+PATH="$HOME/clang/bin:$HOME/aarch64-linux-android-4.9/bin:$HOME/arm-linux-androideabi-4.9/bin:${PATH}" \
+make -j$(nproc --all) O=out \
+                      ARCH=arm64 \
+                      CC=clang \
+                      CLANG_TRIPLE=aarch64-linux-gnu- \
+                      CROSS_COMPILE=aarch64-linux-android- \
+                      CROSS_COMPILE_ARM32=arm-linux-androideabi-
 cd ../
 git clone https://github.com/TheSanty/AnyKernel3.git
 cp $(pwd)/kernel_xiaomi_msm8953/out/arch/arm64/boot/Image.gz-dtb $(pwd)/AnyKernel3
